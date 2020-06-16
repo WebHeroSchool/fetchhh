@@ -4,8 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
+  <input type="text" class="login" placeholder="Введите GitHub логин">
+  <button class="btn">Найти пользователя</button>
+
+  <section class="user">
+    <div class="user-card">
+      <a href="" class="github-page"><h3 class="user-name">Здесь будет имя</h3></a>
+      <img src="https://cem-lab.org/images/users.png" alt="user photo" class="user-photo">
+      <span class="user-bio"></span>
+      <span class="registration-date"></span>
+    </div>
+    <div class="error">Пользователь не найден</div>
+  </section>
   
+  <script src="script.js"></script>
 </body>
 </html>
