@@ -12,11 +12,6 @@ function showError() {
   errorBlock.style.display = 'flex';
 }
 
-function showUser() {
-  userCard.style.display = 'flex';
-  errorBlock.style.display = 'none';
-}
-
 function searchUser(login = 'norvaishas'){
   let reqUrl = `https://api.github.com/users/${login}`;
 
@@ -34,13 +29,12 @@ function searchUser(login = 'norvaishas'){
     if (response.name == null) {
       userName.innerHTML = 'Имя не заполнено пользователем';
     } else {
-      showUser();
       userName.innerHTML = response.name;
     }
 
     userPhoto.src = response.avatar_url;
-    
     userPageLink.href = response.html_url;
+
     if (response.bio !== null) {
       userBio.innerHTML = response.bio;
     } else {
@@ -51,7 +45,7 @@ function searchUser(login = 'norvaishas'){
   })
   .catch(e => {
     showError();
-    errorBlock.innerHTML = `<h1>пользователь не найден из-за ошибки ${e}</h1>`;
+    errorBlock.innerHTML = `<h1>Пользователь не найден из-за ошибки <span class="red">${e}</span></h1>`;
   });
 }
 
