@@ -1,48 +1,36 @@
-let btn = document.querySelector('.btn'),
-    input = document.querySelector('.login'),
-    userName = document.querySelector('.user-name'),
-    userPhoto = document.querySelector('.user-photo'),
-    userPageLink = document.querySelector('.github-page'),
-    userBio = document.querySelector('.user-bio'),
-    userRegDate = document.querySelector('.registration-date');
+let errorBlock = document.querySelector('.error');
+let userCard = document.querySelector('.user-card');
+let userName = document.querySelector('.user-name');
+let userPhoto = document.querySelector('.user-photo');
+let userPageLink = document.querySelector('.github-page');
+let userBio = document.querySelector('.user-bio');
+let userRegDate = document.querySelector('.registration-date');
+let user;
 
 function showError() {
-  let errorBlock = document.querySelector('.error'),
-      userCard = document.querySelector('.user-card');
-  
   userCard.style.display = 'none';
   errorBlock.style.display = 'flex';
 }
 
 function showUser() {
-  let errorBlock = document.querySelector('.error'),
-      userCard = document.querySelector('.user-card');
-  
   userCard.style.display = 'flex';
   errorBlock.style.display = 'none';
 }
 
-function searchUser(){
-  let user = input.value;
-      reqUrl = `https://api.github.com/users/${user}`;
+function searchUser(login = 'norvaishas'){
+  let reqUrl = `https://api.github.com/users/${login}`;
 
   fetch(reqUrl)
   .then(response => {
-    console.log('попали в первый then')
-    // console.log(response)
-    if (response.ok) {
-      console.log('if внутри первого then')
+    if (response.status != 404) {
       return response.json()
     } else {
-      console.log('else внутри первого then');
-      let error = new Error(response.statusText);
+      let error = new Error(response.statusText + ' ' + response.status);
       error.response = response;
       throw error;
     }
   })
   .then(response => {
-    console.log('такой пользователь существует');
-    // console.log(alredyUsed);
     if (response.name == null) {
       userName.innerHTML = 'Имя не заполнено пользователем';
     } else {
@@ -56,22 +44,23 @@ function searchUser(){
     if (response.bio !== null) {
       userBio.innerHTML = response.bio;
     } else {
-      userBio.innerHTML = `${response.name} не заполнил(a) это поле`;
+      userBio.innerHTML =  'Пользователь не заполнил это поле';
     }
     
-    userRegDate.innerHTML = response.created_at;
+    userRegDate.innerHTML = `Дата регистрации: <br>${response.created_at}`;
   })
   .catch(e => {
-    console.log('это внутри catch')
     showError();
     errorBlock.innerHTML = `<h1>пользователь не найден из-за ошибки ${e}</h1>`;
   });
 }
 
-btn.addEventListener('click', searchUser);
+const urlParams = new URLSearchParams(window.location.search);
 
-input.addEventListener('keydown', function(event) {
-  if(event.keyCode == 13) {
-    searchUser();
-  }
-});
+if (urlParams.has('username') == true) {
+  user = urlParams.get('username');
+} else {
+  user = undefined;
+}
+
+searchUser(user);
