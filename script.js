@@ -12,49 +12,54 @@ function showError() {
   errorBlock.style.display = 'flex';
 }
 
-function searchUser(login = 'norvaishas'){
-  let reqUrl = `https://api.github.com/users/${login}`;
+let createUrl = () =>  {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('username') == true) {
+    user = urlParams.get('username');
+  } else {
+    user = 'norvaishas';
+  }
+  let reqUrl = `https://api.github.com/users/${user}`;
+  return reqUrl;
+};
 
-  fetch(reqUrl)
+const getDate = new Promise((resolve, reject) => {  
+  setTimeout(() => {
+    const now = new Date();
+    resolve(now);
+  }, 3000);
+});
+
+const getUser = new Promise((resolve, reject) => {
+  fetch(createUrl())
   .then(response => {
     if (response.status != 404) {
-      return response.json()
+      resolve(response.json());
     } else {
-      let error = new Error(response.statusText + ' ' + response.status);
-      error.response = response;
-      throw error;
+      reject(response.status + ' ' + response.statusText);
     }
-  })
-  .then(response => {
-    if (response.name == null) {
-      userName.innerHTML = 'Имя не заполнено пользователем';
-    } else {
-      userName.innerHTML = response.name;
-    }
-
-    userPhoto.src = response.avatar_url;
-    userPageLink.href = response.html_url;
-
-    if (response.bio !== null) {
-      userBio.innerHTML = response.bio;
-    } else {
-      userBio.innerHTML =  'Пользователь не заполнил это поле';
-    }
-    
-    userRegDate.innerHTML = `Дата регистрации: <br>${response.created_at}`;
-  })
-  .catch(e => {
-    showError();
-    errorBlock.innerHTML = `<h1>Пользователь не найден из-за ошибки <span class="red">${e}</span></h1>`;
   });
-}
+});
 
-const urlParams = new URLSearchParams(window.location.search);
+// Promise.all([])
 
-if (urlParams.has('username') == true) {
-  user = urlParams.get('username');
-} else {
-  user = undefined;
-}
-
-searchUser(user);
+getDate.then(rightNow => console.log(rightNow));
+getUser.then(res => {
+  if (res.name == null) {
+    userName.innerHTML = 'Имя не заполнено пользователем';
+  } else {
+    userName.innerHTML = res.name;
+  }
+  userPhoto.src = res.avatar_url;
+  userPageLink.href = res.html_url;
+  if (res.bio !== null) {
+    userBio.innerHTML = res.bio;
+  } else {
+    userBio.innerHTML =  'Пользователь не заполнил это поле';
+  }  
+  userRegDate.innerHTML = `Дата регистрации: <br>${res.created_at}`;
+})
+.catch(valueFromReject => {
+  showError();
+  errorBlock.innerHTML = `<h1>Пользователь не найден из-за ошибки <span class="red">${valueFromReject}</span></h1>`;
+});
