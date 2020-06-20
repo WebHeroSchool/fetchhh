@@ -6,11 +6,18 @@ let userPageLink = document.querySelector('.github-page');
 let userBio = document.querySelector('.user-bio');
 let userRegDate = document.querySelector('.registration-date');
 let user;
+let loader = document.querySelector('.preloader');
 
 function showError() {
-  userCard.style.display = 'none';
-  errorBlock.style.display = 'flex';
+  errorBlock.classList.toggle('hide');
+  userName.innerHTML = 'Не найдено';
 }
+
+function switchPreloader() {
+  loader.classList.toggle('hide');
+  userCard.classList.toggle('hide');
+}
+switchPreloader();
 
 let createUrl = () =>  {
   const urlParams = new URLSearchParams(window.location.search);
@@ -23,28 +30,31 @@ let createUrl = () =>  {
   return reqUrl;
 };
 
+let dataRequest = fetch(createUrl());
+
 const getDate = new Promise((resolve, reject) => {  
   setTimeout(() => {
-    const now = new Date();
-    resolve(now);
+    const currentDate = new Date();
+    resolve(currentDate);
   }, 3000);
 });
 
-const getUser = new Promise((resolve, reject) => {
-  fetch(createUrl())
-  .then(response => {
-    if (response.status != 404) {
-      resolve(response.json());
-    } else {
-      reject(response.status + ' ' + response.statusText);
-    }
-  });
-});
+let now;
 
-// Promise.all([])
-
-getDate.then(rightNow => console.log(rightNow));
-getUser.then(res => {
+Promise.all([getDate, dataRequest])
+.then(([getDateValue, response]) => {
+  now = getDateValue;
+  return response;
+})
+.then(resp => {
+  if (resp.status != 404) {
+    return(resp.json());
+  } else {
+    throw(resp.status + ' ' + resp.statusText);
+  }
+})
+.then((res) => {
+  switchPreloader();
   if (res.name == null) {
     userName.innerHTML = 'Имя не заполнено пользователем';
   } else {
@@ -57,9 +67,10 @@ getUser.then(res => {
   } else {
     userBio.innerHTML =  'Пользователь не заполнил это поле';
   }  
-  userRegDate.innerHTML = `Дата регистрации: <br>${res.created_at}`;
+  userRegDate.innerHTML = now;
 })
 .catch(valueFromReject => {
+  switchPreloader();
   showError();
-  errorBlock.innerHTML = `<h1>Пользователь не найден из-за ошибки <span class="red">${valueFromReject}</span></h1>`;
+  errorBlock.innerHTML = `<h1>Пользователь не найден из-за ошибки: <br><span class="red">${valueFromReject}</span></h1>`;
 });
