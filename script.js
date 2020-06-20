@@ -10,7 +10,6 @@ let loader = document.querySelector('.preloader');
 
 function showError() {
   errorBlock.classList.toggle('hide');
-  userName.innerHTML = 'Не найдено';
 }
 
 function switchPreloader() {

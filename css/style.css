@@ -17,6 +17,11 @@
   text-align: center;
 }
 
+.github-page {
+  color: darkblue;
+  text-decoration: none;
+}
+
 .hide {display: none;}
 
 /* Preloader */
